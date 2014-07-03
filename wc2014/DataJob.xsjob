@@ -1,0 +1,12 @@
+{ 
+	"description": "Analyse World Cup tweets",
+	"action": "wc2014:TwitterAnalyse.xsjs::analyseData", 
+	"schedules": 
+	[ 
+		{ 
+		"description": "Analyse tweets", 
+		"xscron": "* * * * * * */10",
+		"parameter": { }
+		} 
+	]
+}

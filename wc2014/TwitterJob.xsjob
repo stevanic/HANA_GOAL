@@ -1,0 +1,12 @@
+{ 
+	"description": "Read World Cup tweets",
+	"action": "wc2014:TwitterCollector.xsjs::collectTweet", 
+	"schedules": 
+	[ 
+		{ 
+		"description": "Read tweets", 
+		"xscron": "* * * * * * */5",
+		"parameter": { }
+		} 
+	]
+}

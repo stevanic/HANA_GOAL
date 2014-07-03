@@ -1,0 +1,78 @@
+PROCEDURE "WC2014"."wc2014.OBJECT::GoalCount" ( ) 
+	LANGUAGE SQLSCRIPT
+	SQL SECURITY INVOKER 
+	AS
+BEGIN
+	UPDATE "WC2014"."PAL_NOOFGOAL_DATA_TBL" SET RAWDATA = 0;
+	
+	UPDATE "WC2014"."PAL_NOOFGOAL_DATA_TBL"
+		SET "RAWDATA" = ( T3."AVG" )
+		FROM  "WC2014"."PAL_NOOFGOAL_DATA_TBL", (select 
+			(SECONDS_BETWEEN( (SELECT MIN(TO_TIMESTAMP( YEAR(t2."created_at") || '-' || MONTH(t2."created_at") || '-' || DAYOFMONTH(t2."created_at") || ' ' ||
+				LPAD(HOUR(t2."created_at"),2,'0') || ':' || LPAD(MINUTE(t2."created_at"),2,'0') || ':' || '00' )) FROM "WC2014"."wc2014.OBJECT::tweets" as t2 ) ,
+	 		TO_TIMESTAMP( YEAR(t."created_at") || '-' || MONTH(t."created_at") || '-' || DAYOFMONTH(t."created_at") || ' ' ||
+			LPAD(HOUR(t."created_at"),2,'0') || ':' || LPAD(MINUTE(t."created_at"),2,'0') || ':' || '00' )) / 60) AS "DATA_INDEX"
+			, COUNT(1) * 100 / (select COUNT(1)
+				from "WC2014"."wc2014.OBJECT::tweets" as t3
+				where TO_TIMESTAMP( YEAR(t3."created_at") || '-' || MONTH(t3."created_at") || '-' || DAYOFMONTH(t3."created_at") || ' ' ||
+						LPAD(HOUR(t3."created_at"),2,'0') || ':' || LPAD(MINUTE(t3."created_at"),2,'0') || ':' || '00' ) = 
+						TO_TIMESTAMP( YEAR(t."created_at") || '-' || MONTH(t."created_at") || '-' || DAYOFMONTH(t."created_at") || ' ' ||
+						LPAD(HOUR(t."created_at"),2,'0') || ':' || LPAD(MINUTE(t."created_at"),2,'0') || ':' || '00' ))
+				as "AVG"
+		from "WC2014"."wc2014.OBJECT::tweets" as t	
+		where UPPER("text") NOT LIKE '%GOALKEEPER%'
+			AND UPPER("text") NOT LIKE '%GOAL KEEPER%'
+			AND UPPER("text") NOT LIKE '%NO GOAL%'
+			AND UPPER("text") NOT LIKE '%NOT GOAL%'
+			AND UPPER("text") NOT LIKE '%NOT A GOAL%'
+			AND UPPER("text") NOT LIKE '%MISS%GOAL%'
+			AND UPPER("text") NOT LIKE '%GOAL%MISS%'
+			AND UPPER("text") NOT LIKE '%DISALLOW%GOAL%'
+			AND UPPER("text") NOT LIKE '%GOAL%DISALLOW%'
+			AND UPPER("text") NOT LIKE '%ANULAR%GOAL%'
+			AND UPPER("text") NOT LIKE '%NO%ACEPTAR%GOAL%'
+			AND UPPER("text") NOT LIKE '%ABLEHNEN%GOAL%'
+			AND UPPER("text") NOT LIKE '%GOAL%ABLEHNEN%'
+			AND UPPER("text") NOT LIKE '%AT GOAL%'
+			AND EXISTS( SELECT 1
+				FROM "WC2014"."$TA_TWEETS_LF_I" as i
+				WHERE i."id_str" = t."id_str"
+				AND (UPPER(i.TA_TOKEN) LIKE '% GOAL %' OR UPPER(i.TA_TOKEN) LIKE '% GOL %' 
+					OR UPPER(i.TA_TOKEN) LIKE '%GOAL %' OR UPPER(i.TA_TOKEN) LIKE 'GOL %' 
+					OR UPPER(i.TA_TOKEN) LIKE '% GOAL %' OR UPPER(i.TA_TOKEN) LIKE '% GOL' 
+					OR UPPER(i.TA_TOKEN) LIKE '%G%O%A%LLL%'  
+					OR UPPER(i.TA_TOKEN) LIKE '%G%O%LLL%'
+					OR UPPER(i.TA_TOKEN) LIKE '%G%O%AAA%L%'
+					OR UPPER(i.TA_TOKEN) LIKE '%G%OOO%A%L%' OR UPPER(i.TA_TOKEN) LIKE '%G%OOO%L%'
+					OR UPPER(i.TA_TOKEN) LIKE '%G%O%A%L%' 
+					OR UPPER(i.TA_TOKEN) LIKE '%GGG%O%L%'
+					OR UPPER(i.TA_TOKEN) LIKE '%GG%OO%LL%'
+					OR UPPER(i.TA_TOKEN) LIKE '%DOEL%' 
+					OR UPPER(i.TA_TOKEN) LIKE '%GOLAZO%')
+				AND UPPER(i.TA_TOKEN) NOT LIKE '%GOAL%KEEP%'
+				)
+		group by 
+			SECONDS_BETWEEN( (SELECT MIN(TO_TIMESTAMP( YEAR(t2."created_at") || '-' || MONTH(t2."created_at") || '-' || DAYOFMONTH(t2."created_at") || ' ' ||
+				LPAD(HOUR(t2."created_at"),2,'0') || ':' || LPAD(MINUTE(t2."created_at"),2,'0') || ':' || '00' )) FROM "WC2014"."wc2014.OBJECT::tweets" as t2 ) ,
+	 		TO_TIMESTAMP( YEAR(t."created_at") || '-' || MONTH(t."created_at") || '-' || DAYOFMONTH(t."created_at") || ' ' ||
+			LPAD(HOUR(t."created_at"),2,'0') || ':' || LPAD(MINUTE(t."created_at"),2,'0') || ':' || '00' )) / 60--, '60')
+			, TO_TIMESTAMP( YEAR(t."created_at") || '-' || MONTH(t."created_at") || '-' || DAYOFMONTH(t."created_at") || ' ' ||
+			LPAD(HOUR(t."created_at"),2,'0') || ':' || LPAD(MINUTE(t."created_at"),2,'0') || ':' || '00' )
+		order by 
+			SECONDS_BETWEEN( (SELECT MIN(TO_TIMESTAMP( YEAR(t2."created_at") || '-' || MONTH(t2."created_at") || '-' || DAYOFMONTH(t2."created_at") || ' ' ||
+				LPAD(HOUR(t2."created_at"),2,'0') || ':' || LPAD(MINUTE(t2."created_at"),2,'0') || ':' || '00' )) FROM "WC2014"."wc2014.OBJECT::tweets" as t2 ) ,
+	 		TO_TIMESTAMP( YEAR(t."created_at") || '-' || MONTH(t."created_at") || '-' || DAYOFMONTH(t."created_at") || ' ' ||
+			LPAD(HOUR(t."created_at"),2,'0') || ':' || LPAD(MINUTE(t."created_at"),2,'0') || ':' || '00' )) / 60
+			, TO_TIMESTAMP( YEAR(t."created_at") || '-' || MONTH(t."created_at") || '-' || DAYOFMONTH(t."created_at") || ' ' ||
+			LPAD(HOUR(t."created_at"),2,'0') || ':' || LPAD(MINUTE(t."created_at"),2,'0') || ':' || '00' )
+		 ) AS T3
+	WHERE "ID" = T3."DATA_INDEX";
+	
+	DELETE FROM "WC2014"."PAL_NOOFGOAL_RESULT_TBL";
+	
+	lt_data = SELECT * FROM "WC2014"."PAL_NOOFGOAL_DATA_TBL";
+	lt_control = SELECT * FROM "WC2014"."PAL_NOOFGOAL_CONTROL_TBL";
+	CALL _SYS_AFL.NOOFGOAL_TEST_PROC(:lt_data, :lt_control, :lt_result) WITH OVERVIEW;
+	
+	INSERT INTO "WC2014"."PAL_NOOFGOAL_RESULT_TBL" SELECT * FROM :lt_result;
+END;

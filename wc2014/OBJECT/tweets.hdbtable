@@ -1,0 +1,10 @@
+//To define the HDB table file use the following syntax: 
+
+table.schemaName = "WC2014";
+table.tableType = COLUMNSTORE;
+table.columns = [ 
+    {name = "id_str"; sqlType = BIGINT; nullable = false; comment = "Tweet Id";},
+	{name = "text"; sqlType = NVARCHAR; nullable = false; length = 420; },
+	{name = "created_at"; sqlType = TIMESTAMP; nullable = false; },
+	{name = "screen_name"; sqlType = NVARCHAR; nullable = false; length = 100; } ];
+table.primaryKey.pkcolumns = ["id_str"];

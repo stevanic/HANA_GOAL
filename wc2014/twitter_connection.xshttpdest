@@ -1,0 +1,12 @@
+//To define the XS HTTP destination configuration use the following syntax: 
+
+host = "<host>"; 
+port = 80; 
+description = "Twitter Adapter";
+useSSL = false; 
+pathPrefix = "<url suffix>";
+authType = none;
+useProxy = false;
+proxyHost = "";
+proxyPort = 0;
+timeout = 0;
